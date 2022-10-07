@@ -7,6 +7,7 @@ React with swr & axios 測試 + 部分筆記
 2. 測試元件有無 SWR 的差異
 
 # File Structure
+```bash
 root/  
 ├─── README.md  
 ├─── .gitignore  
@@ -32,3 +33,4 @@ root/
     │─── main.tsx  
     │─── routes.tsx  
     │─── ...  
+ ```
