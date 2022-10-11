@@ -3,11 +3,11 @@ import { useAddPost, usePosts } from '../hooks/useArticle';
 
 const SinglePost = () => {
     const [ inputValue, setInputValue ] = useState('');
-    // const { data , error, loading } = usePosts();
+    const { data , error, loading } = usePosts();
     const addPost = useAddPost(inputValue);
 
     // useAxiosPrivate useEffect 踩雷
-    const { data , error } = usePosts();
+    // const { data , error } = usePosts();
 
     const updateInput = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setInputValue(event.currentTarget.value)
@@ -18,7 +18,7 @@ const SinglePost = () => {
     if(!data) {
         renderElement = <p>Loading</p>
     } else {
-        renderElement = data?.map((item: any) => <p key={item.id}>{item.title}</p>)
+        renderElement = data.map((item) => ( <p key={item.id}>{item.title}</p>))
     }
     return (
         <div>

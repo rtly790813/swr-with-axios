@@ -1,7 +1,7 @@
 import { Dispatch, ReactNode, SetStateAction, useReducer, useState } from "react";
 import { createContext } from "use-context-selector";
 
-interface User {
+export interface User {
     sub: string;
     name: string;
     iat: number;
