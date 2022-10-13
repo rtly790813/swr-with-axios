@@ -4,7 +4,7 @@ import { useAddPost, usePosts } from '../hooks/useArticle';
 const SinglePost = () => {
     const [ inputValue, setInputValue ] = useState('');
     const { data , error, loading } = usePosts();
-    const addPost = useAddPost(inputValue);
+    // const addPost = useAddPost(inputValue);
 
     // useAxiosPrivate useEffect 踩雷
     // const { data , error } = usePosts();
@@ -24,7 +24,7 @@ const SinglePost = () => {
         <div>
             <form>
                 <input type="text" value={inputValue} onChange={updateInput}/>
-                <button type='button' onClick={addPost}>123</button>
+                {/* <button type='button' onClick={addPost}>123</button> */}
             </form>
             {renderElement}
         </div>

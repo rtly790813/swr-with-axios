@@ -8,7 +8,7 @@ const Index: React.FC = () => {
     return (
         <div style={{display: 'flex'}}>
             <SinglePost />
-            <SinglePostWithoutSWR />
+            {/* <SinglePostWithoutSWR /> */}
         </div>
     )
 }

@@ -1,25 +1,45 @@
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 import useSWR, { KeyedMutator, Middleware, SWRConfiguration, SWRHook } from 'swr';
+import { isFunction } from '../utils/helper';
 import useAuth from './useAuth';
 import useAxiosPrivate from './useAxiosPrivate';
 
-type SwrResultType<Data>= {
+type SwrResultType<Data> = {
 	data: Data,
 	error: AxiosError,
 	mutate: KeyedMutator<any>,
 	loading: boolean
 }
 
-const useSWRPrivate = <Data extends {}>(key: string, errorFn: () => void):SwrResultType<Data> => {
+type SwrOptions = {
+	onError?: () => void;
+	axiosConfig?:  AxiosRequestConfig<any> | undefined
+}
+
+type SwrPrivateType<PostData> = {
+	key: string;
+	postData?: PostData;
+	options?: SwrOptions;
+}
+
+const useSWRPrivate = <Data extends {}, PostData = unknown>({key, postData, options}: SwrPrivateType<PostData>):SwrResultType<Data> => {
 	const axiosPrivate = useAxiosPrivate();
     const token  = useAuth();
-	const fetcher = (path: string) => (axiosPrivate
-		.get(path)
+	const fetcher = (url: string) => (axiosPrivate({
+			method: 'post',
+			url,
+			data: postData,
+			...options?.axiosConfig
+		})
 		.then(response => response.data)
 		.catch(error => { 
-			errorFn()
-			throw Error 
+			if(isFunction(options?.onError)) {
+				options?.onError();
+			}
+
+			throw Error;
 		}))
+
 
     const { data, error, mutate } = useSWR(token ? [key, token] : null, fetcher);
     return {

@@ -11,12 +11,23 @@ export interface Article {
 
 // 第一種方式
 const usePosts = () => {
-    return useSWRPrivate<Article[]>('article1', () => { console.log('custom error')});
+    return useSWRPrivate<Article[]>({
+        key: 'article', 
+        postData: { title: '123'},
+        options: {
+            onError: () => {
+                console.log('custom error')
+            },
+            axiosConfig: {
+                headers: {'Content-Type': 'XMLHttpRequest'}
+            }
+        }
+    });
 }
 
 const useAddPost = (value: string) => {
     // const { mutate } = useSWRConfig()
-    const { mutate } = useSWRPrivate<Article[]>('article', () => { console.log('custom error')});
+    const { mutate } = useSWRPrivate<Article[]>({key:'article'});
     // mutate 
     // 他的更新是樂觀更新，預期更新一定是可以 200 的
     // 第一個參數為 key，他的 key 要與原本要 show 在 list 上的 key 是相同的，才會去更新對應 cache，但如果 mutate 是透過 useSWR 已指定 key，就不需要再設定

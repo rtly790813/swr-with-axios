@@ -10,10 +10,9 @@ const useAxiosPrivate = () => {
 
     useLayoutEffect(() => {
         const requestIntercept = axiosPrivate.interceptors.request.use(config => {
-            if(!config.headers?.Authorization && token) {
-                config.headers = {
-                    Authorization: `Bearer ${token}`
-                }
+            const notSetToken = !config.headers?.Authorization 
+            if(config.headers && notSetToken && token) {
+                config.headers.Authorization = `Bearer ${token}`
             }
             return config;
         });
