@@ -4,54 +4,58 @@ import { isFunction } from '../utils/helper';
 import useAuth from './useAuth';
 import useAxiosPrivate from './useAxiosPrivate';
 
-type SwrResultType<Data> = {
-	data: Data,
-	error: AxiosError,
-	mutate: KeyedMutator<any>,
-	loading: boolean
-}
-
 type SwrOptions = {
 	onError?: () => void;
-	axiosConfig?:  AxiosRequestConfig<any> | undefined
+	axiosConfig?:  AxiosRequestConfig<any> | undefined,
+	swrConfig?: SWRConfiguration
 }
+type SwrKeyType = string | (string | number | undefined)[];
+type SwrKeyResultType<SendData> = string | [string, SendData] | null;
 
-type SwrPrivateType<PostData> = {
-	key: string;
-	postData?: PostData;
-	options?: SwrOptions;
-}
 
-const useSWRPrivate = <Data extends {}, PostData = unknown>({key, postData, options}: SwrPrivateType<PostData>):SwrResultType<Data> => {
+const useSWRPrivate = <Data, SendData = unknown>(keys: SwrKeyType, sendData?: SendData, {onError, axiosConfig, swrConfig}: SwrOptions = {}) => {
 	const axiosPrivate = useAxiosPrivate();
     const token  = useAuth();
-	const fetcher = (url: string) => (axiosPrivate({
+	const fetcher = (url: string, data?: SendData) => (axiosPrivate({
 			method: 'post',
 			url,
-			data: postData,
-			...options?.axiosConfig
+			data,
+			...axiosConfig
 		})
 		.then(response => response.data)
 		.catch(error => { 
-			if(isFunction(options?.onError)) {
-				options?.onError();
+			if(isFunction(onError)) {
+				onError();
 			}
 
 			throw Error;
 		}))
 
+	const getSwrKey = () => {
+		if(!token) return null;
 
-    const { data, error, mutate } = useSWR(token ? [key, token] : null, fetcher);
-    return {
-        data,
-        error,
-        mutate,
-        loading: !data && !error
-    } 
+		let result: SwrKeyResultType<SendData> = null;
+		if(typeof keys === 'string') {
+			result = keys;
+		}
+		if(Array.isArray(keys)) {
+			const hasValue = keys.every(val => val !== undefined && val !== null)
+			result = hasValue ? keys.join('/') : null;
+		}
+		if(!!sendData && !!result) {
+			result = [result, sendData];
+
+			return result;
+		}
+	}
+
+    return useSWR(getSwrKey(), fetcher, swrConfig);
 }
 
 const swrConfig: SWRConfiguration = {
 	revalidateOnFocus: false ,
+	revalidateOnReconnect: false,
+	shouldRetryOnError: false
 }
 
 export { swrConfig }
